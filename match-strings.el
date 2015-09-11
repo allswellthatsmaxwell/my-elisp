@@ -13,21 +13,36 @@
 ; <offby1> e1f: really?!
 ; <e1f> yes really
 
+(require 'cl)
+
+(defun jaccard-similarity (l1 l2)
+  (let ((|union|        (length (cl-union        l1 l2)))
+	(|intersection| (length (cl-intersection l1 l2))))
+    (print (length l1))
+    (/ (float |intersection|) |union|)))
+
 (defun match-strings ()
   (interactive)
   (let ((first-region (x-get-selection 'PRIMARY))
 	(second-region (x-get-selection 'SECONDARY)))
     (set-text-properties 0 (length first-region) nil first-region)
     (set-text-properties 0 (length second-region) nil second-region)
-    (split-string first-region  "\n")
-    (split-string second-region "\n")))
+    (let ((token-list-1  (split-string first-region "\n")) ; splitting on newline is a bit problems
+	  (token-list-2  (split-string second-region "\n")))
+      (print (get-string-similarity token-list-1
+				    token-list-2
+				    'jaccard-similarity)))))
 
-(defun jaccard-similarity(s1 s2)
-
+; currently it's unioning the lines, not the characters. dagn
+  
 ; metric: [Char] -> [Char] -> Numeric
 ; The number returned from metric should measure how similar s1 and s2 are.
 (defun get-string-similarity (s1 s2 metric)
-  (metric (delete "" (split-string "" s1))
-	  (delete "" (split-string "" s2))))
-  
+  (let* ((string->char-list (lambda (s) (delete "" (split-string "" s)))))
+    (funcall metric
+	     (mapcar string->char-list s1)
+	     (mapcar string->char-list s2))))
+
+; bbbbb
+; bbbbb
 
